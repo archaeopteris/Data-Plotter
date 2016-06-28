@@ -1,25 +1,27 @@
 {
-  "name": "NodJS-Serial_Plotter",
+  "name": "Data-Plotter",
   "repository": {
     "type": "git",
-    "url": "https://github.com/archaeopteris/NodJS-Serial-Plotter.git"
+    "url": "https://github.com/archaeopteris/data-plotter.git"
   },
   "version": "1.0.0",
-  "description": "Serial Plotter that reads data from serial port and uses Processing.js library to graph them.",
+  "description": "Serial Plotter that reads data from serial port and uses highcharts library to graph them.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Tulsa Parihar",
-  "license": "ISC",
+  "author": "Hayk Voskanyan",
+  "license": "GNU",
   "dependencies":{
     "serialport": "*",
-    "socket.io": "1.3.5"
+    "socket.io": "1.3.5",
+    "highcharts": "*"
   },
   "keywords": [
     "SerialReader",
-    "Processing",
+    "Highcharts",
     "Sensor",
+    "BME280",
     "Arduino"
   ],
   "devDependencies": {}
