@@ -1,0 +1,791 @@
+<!DOCTYPE HTML>
+ <html>
+   <head>
+<!--    <script src="http://code.jquery.com/jquery-1.8.3.js"></script> -->
+     <script src="http://192.168.42.1/jquery-1.8.3.js"></script>
+<!--     <script src="http://code.highcharts.com/highcharts.js"></script> -->
+     <script src="http://192.168.42.1/highcharts.js"></script>
+<!-- <script src="http://code.highcharts.com/modules/exporting.js"></script> -->
+<script src="http://192.168.42.1/exporting.js"></script>
+
+<div id="containerTemp" style="width: 400px; height: 400px; margin: 0 auto"></div>
+<div id="containerHumid" style="width: 400px; height: 400px; margin: 0 auto"></div>
+<div id="containerPress" style="width: 400px; height: 400px; margin: 0 auto"></div>
+<div id="containerAltitude" style="width: 400px; height: 400px; margin: 0 auto"></div>
+<div id="containereField" style="width: 400px; height: 400px; margin: 0 auto"></div>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+    // Temperature Plotter
+
+    // Address of raspberry pi with port number on which server is running
+    var hostServer = 'http://192.168.42.1:4111';
+    var T = 0;
+
+    var temperature = 0;
+
+    iosocket = io.connect(hostServer);
+
+    iosocket.on('messageTemp', function (tempData)
+    {
+        temperature = tempData.pollOneValue; // recieve start poll value from server
+    });
+
+    
+    function GetYT()
+    {
+        T = temperature;
+
+        return T;
+    }
+
+        $(function ()
+        {
+            $(document).ready(function ()
+            {
+                Highcharts.setOptions(
+                {
+                    global:
+                    {
+                        useUTC: false
+                    }
+                });
+            
+                $('#containerTemp').highcharts(
+                {
+                    chart:
+                    {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 60,
+                        events:
+                        {
+                            load: function ()
+                            {
+                                // set up the updating of the chart each second
+                                var series = this.series[0];
+                                setInterval(function ()
+                                {
+                                    var x = (new Date()).getTime(), // current time
+                                    y = GetYT()
+                                    series.addPoint([x, y], true, true);
+                                }, 1000);
+                            }
+                        }
+                    },
+                    title:
+                    {
+                        text: 'Temperature'
+                    },
+                    xAxis:
+                    {
+                        type: 'datetime',
+                        tickPixelInterval: 150
+                    },
+                    yAxis:
+                    [{ //
+                        title:
+                        {
+                            text: 'Temperature',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        labels:
+                        {
+                            format: '{value} C*',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        plotLines:
+                        [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+//                        max: 100
+                    }],
+
+                    tooltip:
+                    {
+                        formatter: function ()
+                        {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                            Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend:
+                    {
+                        enabled: false
+                    },
+                    exporting:
+                    {
+                        enabled: false
+                    },
+            
+                    series:
+                    [{
+                        name: 'Temperature',
+//                        yAxis: 1,
+                        data: (function ()
+                        {
+                            // generate an array of random data
+                            var dataTemp = [],
+                            time = (new Date()).getTime(),
+                            i;
+
+                            for (i = -59; i <= 0; i += 1)
+                            {
+                                dataTemp.push(
+                                {
+                                    x: time + i * 1000,
+                                    y: GetYT()
+                                });
+                            }
+                        
+                            return dataTemp;
+                        }())
+                    }]
+
+                });
+            });
+        });
+
+
+    </script>
+
+    <script>
+    // Humidity Plotter
+
+    var H = 0;
+
+    var humidity = 0;
+
+    iosocket = io.connect(hostServer);
+
+    iosocket.on('messageHumid', function (humidData)
+    {
+        humidity = humidData.pollOneValue; // recieve start poll value from server
+    });
+
+    
+    function GetYH()
+    {
+        H = humidity;
+
+        return H;
+    }
+
+        $(function ()
+        {
+            $(document).ready(function ()
+            {
+                Highcharts.setOptions(
+                {
+                    global:
+                    {
+                        useUTC: false
+                    }
+                });
+            
+                $('#containerHumid').highcharts(
+                {
+                    chart:
+                    {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 60,
+                        events:
+                        {
+                            load: function ()
+                            {
+                                // set up the updating of the chart each second
+                                var series = this.series[0];
+                                setInterval(function ()
+                                {
+                                    var x = (new Date()).getTime(), // current time
+                                    y = GetYH()
+                                    series.addPoint([x, y], true, true);
+                                }, 1000);
+                            }
+                        }
+                    },
+                    title:
+                    {
+                        text: 'Humidity'
+                    },
+                    xAxis:
+                    {
+                        type: 'datetime',
+                        tickPixelInterval: 150
+                    },
+                    yAxis:
+                    [{ //
+                        title:
+                        {
+                            text: 'Humidity',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        labels:
+                        {
+                            format: '{value} %',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        plotLines:
+                        [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+//                        max: 100
+                    }],
+
+                    tooltip:
+                    {
+                        formatter: function ()
+                        {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                            Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend:
+                    {
+                        enabled: false
+                    },
+                    exporting:
+                    {
+                        enabled: false
+                    },
+            
+                    series:
+                    [{
+                        name: 'Humidity',
+//                        yAxis: 1,
+                        data: (function ()
+                        {
+                            // generate an array of random data
+                            var dataHumid = [],
+                            time = (new Date()).getTime(),
+                            i;
+
+                            for (i = -59; i <= 0; i += 1)
+                            {
+                                dataHumid.push(
+                                {
+                                    x: time + i * 1000,
+                                    y: GetYH()
+                                });
+                            }
+                        
+                            return dataHumid;
+                        }())
+                    }]
+
+                });
+            });
+        });
+
+
+    </script>
+
+    <script>
+    // Pressure Plotter
+
+    var P = 0;
+
+    var pressure = 0;
+
+    iosocket = io.connect(hostServer);
+
+    iosocket.on('messagePress', function (pressData)
+    {
+        pressure = pressData.pollOneValue; // recieve start poll value from server
+    });
+
+    
+    function GetYP()
+    {
+        P = pressure;
+
+        return P;
+    }
+
+        $(function ()
+        {
+            $(document).ready(function ()
+            {
+                Highcharts.setOptions(
+                {
+                    global:
+                    {
+                        useUTC: false
+                    }
+                });
+            
+                $('#containerPress').highcharts(
+                {
+                    chart:
+                    {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 60,
+                        events:
+                        {
+                            load: function ()
+                            {
+                                // set up the updating of the chart each second
+                                var series = this.series[0];
+                                setInterval(function ()
+                                {
+                                    var x = (new Date()).getTime(), // current time
+                                    y = GetYP()
+                                    series.addPoint([x, y], true, true);
+                                }, 1000);
+                            }
+                        }
+                    },
+                    title:
+                    {
+                        text: 'Pressure'
+                    },
+                    xAxis:
+                    {
+                        type: 'datetime',
+                        tickPixelInterval: 150
+                    },
+                    yAxis:
+                    [{ //
+                        title:
+                        {
+                            text: 'Pressure',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        labels:
+                        {
+                            format: '{value} hPa',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        plotLines:
+                        [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+//                        max: 1020,
+//                        min: 630
+                    }],
+
+                    tooltip:
+                    {
+                        formatter: function ()
+                        {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                            Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend:
+                    {
+                        enabled: false
+                    },
+                    exporting:
+                    {
+                        enabled: false
+                    },
+            
+                    series:
+                    [{
+                        name: 'Pressure',
+//                        yAxis: 1,
+                        data: (function ()
+                        {
+                            // generate an array of random data
+                            var dataPress = [],
+                            time = (new Date()).getTime(),
+                            i;
+
+                            for (i = -59; i <= 0; i += 1)
+                            {
+                                dataPress.push(
+                                {
+                                    x: time + i * 1000,
+                                    y: GetYP()
+                                });
+                            }
+                        
+                            return dataPress;
+                        }())
+                    }]
+
+                });
+            });
+        });
+
+
+    </script>
+
+
+    <script>
+    // Altitude Plotter
+
+    var A = 0;
+
+    var pressure = 0;
+
+    iosocket = io.connect(hostServer);
+
+    iosocket.on('messagePress', function (pressData)
+    {
+        pressure = pressData.pollOneValue; // recieve start poll value from server
+    });
+
+    
+    function GetYA()
+    {
+        // Converts Pressure in millibars to altitude in meters.
+        A = (1 - Math.pow((pressure / 1013.25), 0.190284)) * 44308.23274811;
+        
+        if(A == 44308.23274811)
+        {
+            A = 1000;
+        }
+
+        return A;
+    }
+
+        $(function ()
+        {
+            $(document).ready(function ()
+            {
+                Highcharts.setOptions(
+                {
+                    global:
+                    {
+                        useUTC: false
+                    }
+                });
+            
+                $('#containerAltitude').highcharts(
+                {
+                    chart:
+                    {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 60,
+                        events:
+                        {
+                            load: function ()
+                            {
+                                // set up the updating of the chart each second
+                                var series = this.series[0];
+                                setInterval(function ()
+                                {
+                                    var x = (new Date()).getTime(), // current time
+                                    y = GetYA()
+                                    series.addPoint([x, y], true, true);
+                                }, 1000);
+                            }
+                        }
+                    },
+                    title:
+                    {
+                        text: 'Altitude'
+                    },
+                    xAxis:
+                    {
+                        type: 'datetime',
+                        tickPixelInterval: 150
+                    },
+                    yAxis:
+                    [{ //
+                        title:
+                        {
+                            text: 'Altitude',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        labels:
+                        {
+                            format: '{value} meter',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        plotLines:
+                        [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+//                        max: 1020,
+//                        min: 630
+                    }],
+
+                    tooltip:
+                    {
+                        formatter: function ()
+                        {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                            Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend:
+                    {
+                        enabled: false
+                    },
+                    exporting:
+                    {
+                        enabled: false
+                    },
+            
+                    series:
+                    [{
+                        name: 'Altitude',
+//                        yAxis: 1,
+                        data: (function ()
+                        {
+                            // generate an array of random data
+                            var dataAltitude = [],
+                            time = (new Date()).getTime(),
+                            i;
+
+                            for (i = -59; i <= 0; i += 1)
+                            {
+                                dataAltitude.push(
+                                {
+                                    x: time + i * 1000,
+                                    y: GetYA()
+                                });
+                            }
+                        
+                            return dataAltitude;
+                        }())
+                    }]
+
+                });
+            });
+        });
+
+    </script>
+
+
+
+
+
+
+
+
+    <script>
+    // EField Plotter
+
+
+    var E = 0;
+
+    var eField = 0;
+
+    iosocket = io.connect(hostServer);
+
+    iosocket.on('messageEField', function (eFieldData)
+    {
+        eField = eFieldData.pollOneValue; // recieve start poll value from server
+    });
+
+    
+    function GetYE()
+    {
+        E = eField;
+
+        return E;
+    }
+
+        $(function ()
+        {
+            $(document).ready(function ()
+            {
+                Highcharts.setOptions(
+                {
+                    global:
+                    {
+                        useUTC: false
+                    }
+                });
+            
+                $('#containereField').highcharts(
+                {
+                    chart:
+                    {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 60,
+                        events:
+                        {
+                            load: function ()
+                            {
+                                // set up the updating of the chart each second
+                                var series = this.series[0];
+                                setInterval(function ()
+                                {
+                                    var x = (new Date()).getTime(), // current time
+                                    y = GetYE()
+                                    series.addPoint([x, y], true, true);
+                                }, 1000);
+                            }
+                        }
+                    },
+                    title:
+                    {
+                        text: 'EField'
+                    },
+                    xAxis:
+                    {
+                        type: 'datetime',
+                        tickPixelInterval: 150
+                    },
+                    yAxis:
+                    [{ //
+                        title:
+                        {
+                            text: 'EField',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        labels:
+                        {
+                            format: '{value} V/m',
+                            style:
+                            {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        plotLines:
+                        [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }],
+//                        max: 5000
+                    }],
+
+                    tooltip:
+                    {
+                        formatter: function ()
+                        {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                            Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                            Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend:
+                    {
+                        enabled: false
+                    },
+                    exporting:
+                    {
+                        enabled: false
+                    },
+            
+                    series:
+                    [{
+                        name: 'EField',
+//                        yAxis: 1,
+                        data: (function ()
+                        {
+                            // generate an array of random data
+                            var dataeField = [],
+                            time = (new Date()).getTime(),
+                            i;
+
+                            for (i = -59; i <= 0; i += 1)
+                            {
+                                dataeField.push(
+                                {
+                                    x: time + i * 1000,
+                                    y: GetYE()
+                                });
+                            }
+                        
+                            return dataeField;
+                        }())
+                    }]
+
+                });
+            });
+        });
+
+/*
+width: 200px;
+            height: 100px;
+*/
+
+    </script>
+
+
+
+    <style>
+        #containerTemp
+        {
+            position: relative;
+            float: left;
+        }
+
+        #containerHumid
+        {
+            position: absolute;
+            top: 0px;
+            left: 430px;
+            
+        }
+
+        #containerPress
+        {
+            position: absolute;
+            top: 430px;
+            left: 0px;
+        }
+
+        #containerAltitude
+        {
+            position: absolute;
+            top: 430px;
+            left: 430px;
+        }
+
+        #containereField
+        {
+            position: absolute;
+            top: 430px;
+            left: 830px;
+        }
+    </style>
+
+    </head>
+    
+    <body>
+
+    </body>
+</html>
