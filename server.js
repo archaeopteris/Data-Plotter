@@ -72,7 +72,7 @@ function initSocketIO(httpServer,debug)
 
     });
 }
-
+ 
 // Listen to serial port
 function serialListener(debug)
 {
